@@ -6,8 +6,9 @@ export default function Home() {
       shadow-lg p-5 rounded-3xl flex flex-col
       gap-4
       ">
-        <button className="w-full h-10 bg-black
-        text-white rounded-sexy-name me-tomato">
+        <input />
+        <a>aaa</a>
+        <button className="btn">
           Submit
         </button>
         <div />
