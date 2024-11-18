@@ -4,13 +4,12 @@ export default function Home() {
       <div className="bg-white 
       w-full max-w-screen-sm 
       shadow-lg p-5 rounded-3xl flex flex-col
-      gap-3
+      gap-4
       ">
-        <div className="group flex flex-col">
-          <input className="bg-gray-100 w-full" placeholder="write your email" />
-          <span className="group-focus-within:block hidden">Make sure it is a valiud email</span>
-          <button>Submit</button>
-        </div>
+        <button className="w-full h-10 bg-black
+        text-white rounded-sexy-name me-tomato">
+          Submit
+        </button>
         <div />
       </div>
     </ main>
