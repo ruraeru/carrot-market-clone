@@ -7,6 +7,8 @@ import { useFormState } from "react-dom";
 import { handleForm } from "./actions";
 
 export default function LogIn() {
+    //useFormState => handleForm(null) return state => call again action 
+    //=> handleForm(prevState) return PrevState
     const [state, action] = useFormState(handleForm, null);
     return (
         <div className="flex flex-col gap-10 py-8 px-6">
