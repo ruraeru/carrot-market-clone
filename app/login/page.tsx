@@ -1,19 +1,12 @@
-"use client";
-
 import FormButton from "@/components/form-button";
 import FormInput from "@/components/form-input";
 import SocialLogin from "@/components/social-login";
 
-export default function Login() {
-    const onClick = async () => {
-        const response = await fetch("/api/users", {
-            method: "POST",
-            body: JSON.stringify({
-                username: "nico",
-                password: "1234"
-            })
-        })
-        console.log(await response.json());
+export default function LogIn() {
+    const handleForm = async (formData: FormData) => {
+        "use server";
+        console.log(formData.get("email"), formData.get("password"))
+        console.log("i run in the server!");
     }
     return (
         <div className="flex flex-col gap-10 py-8 px-6">
@@ -23,23 +16,23 @@ export default function Login() {
                 <h2 className="text-xl">Log in with email and password.
                 </h2>
             </div>
-            <form className="flex flex-col gap-3">
+            <form action={handleForm} className="flex flex-col gap-3">
                 <FormInput
+                    name="email"
                     type="email"
                     placeholder="Email"
                     errors={[]}
                     required
                 />
                 <FormInput
+                    name="password"
                     type="password"
                     placeholder="Password"
                     errors={[]}
                     required
                 />
-            </form>
-            <span onClick={onClick}>
                 <FormButton loading={false} text="Log in" />
-            </span>
+            </form>
             <SocialLogin />
         </div>
     )
