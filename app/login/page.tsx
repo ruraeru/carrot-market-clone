@@ -9,7 +9,7 @@ import { handleForm } from "./actions";
 export default function LogIn() {
     //useFormState => handleForm(null) return state => call again action 
     //=> handleForm(prevState) return PrevState
-    const [state, action] = useFormState(handleForm, null);
+    const [state, dispatch] = useFormState(handleForm, null);
     return (
         <div className="flex flex-col gap-10 py-8 px-6">
             <div className="flex flex-col gap-2 
@@ -18,19 +18,17 @@ export default function LogIn() {
                 <h2 className="text-xl">Log in with email and password.
                 </h2>
             </div>
-            <form action={action} className="flex flex-col gap-3">
+            <form action={dispatch} className="flex flex-col gap-3">
                 <FormInput
                     name="email"
                     type="email"
                     placeholder="Email"
-                    errors={[]}
                     required
                 />
                 <FormInput
                     name="password"
                     type="password"
                     placeholder="Password"
-                    errors={state?.errors ?? []}
                     required
                 />
                 <FormButton text="Log in" />
