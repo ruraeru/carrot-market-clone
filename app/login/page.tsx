@@ -3,13 +3,13 @@
 import FormButton from "@/components/form-button";
 import FormInput from "@/components/form-input";
 import SocialLogin from "@/components/social-login";
-import { useFormState } from "react-dom";
 import { handleForm } from "./actions";
+import { useActionState } from "react";
 
 export default function LogIn() {
     //useFormState => handleForm(null) return state => call again action 
     //=> handleForm(prevState) return PrevState
-    const [state, dispatch] = useFormState(handleForm, null);
+    const [state, dispatch] = useActionState(handleForm, null);
     return (
         <div className="flex flex-col gap-10 py-8 px-6">
             <div className="flex flex-col gap-2 
