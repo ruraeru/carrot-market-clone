@@ -1,15 +1,16 @@
 "use client"
 
-import FormButton from "@/components/button";
-import FormInput from "@/components/input";
+import Button from "@/components/button";
+import Input from "@/components/input";
 import SocialLogin from "@/components/social-login";
-import { handleForm } from "./actions";
+import { login } from "./actions";
 import { useActionState } from "react";
+import { PASSWORD_MIN_LENGTH } from "@/lib/constants";
 
 export default function LogIn() {
-    //useFormState => handleForm(null) return state => call again action 
-    //=> handleForm(prevState) return PrevState
-    const [state, dispatch] = useActionState(handleForm, null);
+    //useActionState => login(null) return state => call again action 
+    //=> login(prevState) return PrevState
+    const [state, dispatch] = useActionState(login, null);
     return (
         <div className="flex flex-col gap-10 py-8 px-6">
             <div className="flex flex-col gap-2 
@@ -19,19 +20,22 @@ export default function LogIn() {
                 </h2>
             </div>
             <form action={dispatch} className="flex flex-col gap-3">
-                <FormInput
+                <Input
                     name="email"
                     type="email"
                     placeholder="Email"
                     required
+                    errors={state?.fieldErrors.email}
                 />
-                <FormInput
+                <Input
                     name="password"
                     type="password"
                     placeholder="Password"
                     required
+                    minLength={PASSWORD_MIN_LENGTH}
+                    errors={state?.fieldErrors.password}
                 />
-                <FormButton text="Log in" />
+                <Button text="Log in" />
             </form>
             <SocialLogin />
         </div>
