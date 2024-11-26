@@ -51,7 +51,12 @@ const formSchema = z
         path: ["username"],
         code: "custom",
         message: "This username is already taken",
-        fatal: true, //이거만 써도 그 다음 refine을 실행 안하는듯
+        fatal: true,
+        /*
+        이거만 써도 그 다음 refine을 실행 안하는듯
+        fatal => 오류 발생 시 검증을 즉시 종료하도록 설정하는 값
+        z.NEVER => 오류 상태를 명확히 하여, 검증이 실패했음을 Zod에 알리는 역할을 한다.
+         */
       });
       return z.NEVER;
     }
