@@ -109,8 +109,6 @@ export async function createAccount(prevState: any, formData: FormData) {
         id: true,
       },
     });
-    console.log(user);
-
     //log the user in
     const session = await getSession();
     session.id = user.id;
