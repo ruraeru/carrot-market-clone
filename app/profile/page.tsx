@@ -30,7 +30,7 @@ export default async function Profile() {
         <div>
             <h1>Welcome! {user?.username}</h1>
             {user?.avatar ? (
-                <Image width={200} height={200} unoptimized src={user?.avatar && user?.avatar} alt={`${user.username}의 프로필`} />
+                <Image width={200} height={200} unoptimized src={user?.avatar && user?.avatar} alt={`${user.username}의 프로필`} placeholder="empty" priority={true} />
             )
                 : ""
             }
