@@ -1,5 +1,6 @@
 import db from "@/lib/db";
 import getSession from "@/lib/session";
+import Image from "next/image";
 import { notFound, redirect } from "next/navigation";
 
 async function getUser() {
@@ -28,6 +29,11 @@ export default async function Profile() {
     return (
         <div>
             <h1>Welcome! {user?.username}</h1>
+            {user?.avatar ? (
+                <Image width={200} height={200} unoptimized src={user?.avatar && user?.avatar} alt={`${user.username}의 프로필`} />
+            )
+                : ""
+            }
             <form action={logOut}>
                 <button>Log out</button>
             </form>

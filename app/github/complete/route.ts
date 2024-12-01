@@ -1,6 +1,8 @@
 import db from "@/lib/db";
+import { accessToken, userEmail, userProfile } from "@/lib/github";
+import saveSession from "@/lib/saveSession";
 import getSession from "@/lib/session";
-import { notFound, redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 import { NextRequest } from "next/server";
 export async function GET(request: NextRequest) {
   const code = request.nextUrl.searchParams.get("code");
@@ -9,31 +11,12 @@ export async function GET(request: NextRequest) {
       status: 400,
     });
   }
-  const accessTokenParams = new URLSearchParams({
-    client_id: process.env.GITHUB_CLIENT_ID!,
-    client_secret: process.env.GITHUB_CLIENT_SECRET!,
-    code,
-  }).toString();
-  const accessTokenURL = `https://github.com/login/oauth/access_token?${accessTokenParams}`;
-  const accessTokenResponse = await fetch(accessTokenURL, {
-    method: "POST",
-    headers: {
-      Accept: "application/json",
-    },
-  });
-  const { error, access_token } = await accessTokenResponse.json();
-  if (error) {
-    return new Response(null, {
-      status: 400,
-    });
-  }
-  const userProfileResponse = await fetch("https://api.github.com/user", {
-    headers: {
-      Authorization: `Bearer ${access_token}`,
-    },
-    cache: "no-cache",
-  });
-  const { id, avatar_url, login: username } = await userProfileResponse.json();
+  const access_token = await accessToken(code);
+
+  const { id, avatar_url, login: username } = await userProfile(access_token);
+  const email = await userEmail(access_token);
+
+  //깃허브 아이디로 사용자가 존재하는지 확인
   const user = await db.user.findUnique({
     where: {
       github_id: id + "",
@@ -42,39 +25,45 @@ export async function GET(request: NextRequest) {
       id: true,
     },
   });
-  //code challenge -> exists user -> username-gh
+
+  //사용자가 존재하면 바로 로그인 후 "/profile"로 리다이렉트
   if (user) {
-    const session = await getSession();
-    session.id = user.id;
-    await session.save();
-    return redirect("/profile");
+    return saveSession(user.id);
   }
-  const newUser = await db.user.create({
-    data: {
+
+  //깃허브와 유저 아이디가 겹치는지 조회
+  const existsUsername = await db.user.findUnique({
+    where: {
       username,
-      github_id: id + "",
-      avatar: avatar_url,
     },
     select: {
       id: true,
     },
   });
-  const session = await getSession();
-  session.id = newUser.id;
-  await session.save();
-  /*
-  코드챌린지
-  1. 로그인 함수 만들어서 오기 
-  const session = await getSession();
-  session.id = newUser.id;
-  await session.save();
 
-  2. 중복 닉네임이 존재하다면 처리해주기
+  //이메일이 존재하지는 확인
+  const existsEmail = await db.user.findUnique({
+    where: {
+      email: email[0].email,
+    },
+    select: {
+      id: true,
+    },
+  });
 
-  3. user email 가져오기 api.github.com/user/emails
+  //새로운 유저 생성
+  const newUser = await db.user.create({
+    data: {
+      username: existsUsername ? username + "-gh" : username, //만약 기존 유저와 깃허브 유저가 겹치면 -gh 추가
+      github_id: id + "",
+      avatar: avatar_url,
+      //이미 존재하는 이메일이면 null
+      email: existsEmail ? null : email[0].email, //사용자가 깃허브 이메일을 여러 개 가지고 있을 경우를 위해
+    },
+    select: {
+      id: true,
+    },
+  });
 
-  4. fetch request 개많음 fetch 별로 파일 분리해서 function 만들기
-
-  */
-  return redirect("/profile");
+  return saveSession(newUser.id);
 }
