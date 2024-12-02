@@ -1,9 +1,9 @@
 "use server";
 
+import twilio from "twilio";
 import crypto from "crypto";
 import { z } from "zod";
 import validator from "validator";
-import { redirect } from "next/navigation";
 import db from "@/lib/db";
 import saveSession from "@/lib/saveSession";
 
@@ -36,6 +36,7 @@ const tokenSchema = z.coerce
 
 interface ActionState {
   token: boolean;
+  phone?: string;
 }
 
 async function getToken() {
@@ -62,7 +63,6 @@ export async function smsLogin(prevState: ActionState, formData: FormData) {
   if (!prevState.token) {
     const result = phoneSchema.safeParse(phone);
     if (!result.success) {
-      console.log(result.error.flatten());
       return {
         token: false,
         error: result.error.flatten(),
@@ -92,28 +92,50 @@ export async function smsLogin(prevState: ActionState, formData: FormData) {
           },
         },
       });
-      //send the token using twilio
+      //twilio 21608 err
+      // const client = twilio(
+      //   process.env.TWILIO_ACCOUNT_SID,
+      //   process.env.TWILIO_AUTH_TOKEN
+      // );
+      // await client.messages.create({
+      //   body: `Your Karrot verification code is: ${token}`,
+      //   from: process.env.TWILIO_PHONE_NUMBER!,
+      //   to: process.env.MY_PHONE_NUMBER!, //원래는 result.data로 입력받은 유저의 전화번호를 입력해야함 하지만 무료 계정이라 내 폰으로...
+      // });
       return {
         token: true,
+        phone: result.data,
       };
     }
   } else {
-    const result = await tokenSchema.spa(token);
-    if (!result.success) {
+    const tokenResult = await tokenSchema.spa(token);
+    const phoneResult = await phoneSchema.spa(prevState.phone);
+    if (!tokenResult.success) {
       return {
-        token: true,
-        error: result.error.flatten(),
+        ...prevState,
+        error: tokenResult.error.flatten(),
       };
     } else {
       const token = await db.sMSToken.findUnique({
         where: {
-          token: result.data + "",
+          token: tokenResult.data + "",
+          user: {
+            phone: phoneResult.data,
+          },
         },
         select: {
           id: true,
           userId: true,
         },
       });
+      if (!token) {
+        return {
+          ...prevState,
+          error: {
+            formErrors: ["This token is not exists"],
+          },
+        };
+      }
       await db.sMSToken.delete({
         where: {
           id: token!.id,
