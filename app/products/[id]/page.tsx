@@ -53,9 +53,8 @@ export default async function ProductDetail({ params }: { params: Promise<{ id: 
                 <Image fill src={product.photo} alt={product.title} />
             </div>
             <div className="p-5 flex items-center gap-3 border-b border-neutral-700">
-                <div className="size-10 rounded-full">
-                    {/* {product.user.avatar !== null ? <Image width={40} height={40} src={product.user.avatar} alt={product.user.username} /> : <UserIcon />} */}
-                    <UserIcon />
+                <div className="size-10 rounded-full overflow-hidden">
+                    {product.user.avatar !== null ? <Image width={40} height={40} src={product.user.avatar} alt={product.user.username} /> : <UserIcon />}
                 </div>
                 <div>
                     <h3>{product.user.username}</h3>
