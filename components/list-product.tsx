@@ -1,3 +1,4 @@
+import { formatToTimeAgo, formatToWon } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -16,8 +17,8 @@ export default function ListProduct({ id, title, price, created_at, photo }: Lis
             </div>
             <div className="flex flex-col gap-1 *:text-white">
                 <span className="text-lg">{title}</span>
-                <span className="text-sm text-neutral-500">{created_at.toString()}</span>
-                <span className="text-lg font-semibold">{price}</span>
+                <span className="text-sm text-neutral-500">{formatToTimeAgo(created_at.toString())}</span>
+                <span className="text-lg font-semibold">{formatToWon(price)}원</span>
             </div>
         </Link>
     )
