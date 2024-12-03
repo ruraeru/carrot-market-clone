@@ -13,7 +13,7 @@ export default function ListProduct({ id, title, price, created_at, photo }: Lis
     return (
         <Link href={`/products/${id}`} className="flex gap-5">
             <div className="relative size-28 rounded-md overflow-hidden">
-                <Image fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" priority={true} src={photo} alt={title} />
+                <Image fill className="object-cover" sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" priority={true} src={photo} alt={title} />
             </div>
             <div className="flex flex-col gap-1 *:text-white">
                 <span className="text-lg">{title}</span>
