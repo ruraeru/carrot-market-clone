@@ -5,9 +5,15 @@ import Input from "@/components/input";
 import { PhotoIcon } from "@heroicons/react/24/solid";
 import { useActionState, useState } from "react";
 import { uploadProduct } from "./actions";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { productSchema, ProductType } from "./schema";
 
 export default function AddProduct() {
     const [preview, setPreview] = useState("");
+    const { register, handleSubmit } = useForm<ProductType>({
+        resolver: zodResolver(productSchema),
+    });
     const onImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { target: { files } } = e;
         if (!files) return;
@@ -46,10 +52,36 @@ export default function AddProduct() {
                         </>
                     ) : null}
                 </label>
-                <input onChange={onImageChange} type="file" id="photo" name="photo" accept="image/*" className="hidden" />
-                <Input name="title" required placeholder="제목" type="text" errors={state?.fieldErrors.title} />
-                <Input name="price" required placeholder="가격" type="number" errors={state?.fieldErrors.price} />
-                <Input name="description" type="text" required placeholder="자세한 설명" errors={state?.fieldErrors.description} />
+                <input
+                    onChange={onImageChange}
+                    type="file"
+                    id="photo"
+                    name="photo"
+                    accept="image/*"
+                    className="hidden"
+                    required
+                />
+                <Input
+                    required
+                    placeholder="제목"
+                    type="text"
+                    {...register("title")}
+                    errors={state?.fieldErrors.title}
+                />
+                <Input
+                    required
+                    placeholder="가격"
+                    type="number"
+                    {...register("price")}
+                    errors={state?.fieldErrors.price}
+                />
+                <Input
+                    type="text"
+                    required
+                    placeholder="자세한 설명"
+                    {...register("description")}
+                    errors={state?.fieldErrors.description}
+                />
                 <Button text="작성 완료" />
             </form>
         </div>
