@@ -5,6 +5,7 @@ import { UserIcon } from "@heroicons/react/24/solid";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import { unstable_cache as nextCache, revalidateTag } from "next/cache";
 
 async function getIsOwner(userId: number) {
     const session = await getSession();
@@ -15,6 +16,7 @@ async function getIsOwner(userId: number) {
 }
 
 async function getProduct(id: number) {
+    console.log("product!!!!!!")
     const product = await db.product.findUnique({
         where: {
             id
@@ -31,12 +33,38 @@ async function getProduct(id: number) {
     return product;
 }
 
+const getCachedProduct = nextCache(getProduct, ["product-detail"], {
+    tags: ["product-detail"]
+});
+
+async function getProductTitle(id: number) {
+    console.log("title!!!!!!")
+    const product = await db.product.findUnique({
+        where: {
+            id
+        },
+        select: {
+            title: true
+        }
+    });
+    return product;
+}
+
+const getCachedProductTitle = nextCache(getProductTitle, ["product-title"], {
+    tags: ["product-title"]
+});
+
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
-    const product = await getProduct(Number(id));
+    const product = await getCachedProductTitle(Number(id));
     return {
         title: product?.title
     }
+}
+
+const validateCache = async () => {
+    "use server"
+    revalidateTag("product-title")
 }
 
 export default async function ProductDetail({ params }: { params: Promise<{ id: string }> }) {
@@ -45,7 +73,7 @@ export default async function ProductDetail({ params }: { params: Promise<{ id: 
     if (isNaN(productId)) {
         return notFound();
     }
-    const product = await getProduct(productId);
+    const product = await getCachedProduct(productId);
     if (!product) {
         return notFound(); //db에 존재하지 않는 프로덕트를 조회할 경우
     }
@@ -82,8 +110,8 @@ export default async function ProductDetail({ params }: { params: Promise<{ id: 
             <div className="fixed w-full bottom-0 left-0 p-5 pb-10 bg-neutral-800 flex justify-between items-center">
                 <span className="font-semibold text-xl">{formatToWon(product.price)}원</span>
                 {isOwner ? (
-                    <form action={deleteProduct}>
-                        <button className="bg-red-500 px-5 py-2.5 rounded-md text-white font-semibold">Delete product</button>
+                    <form action={validateCache}>
+                        <button className="bg-red-500 px-5 py-2.5 rounded-md text-white font-semibold">validateCache</button>
                     </form>
                 ) : null}
                 <Link className="bg-orange-500 px-5 py-2.5 rounded-md text-white font-semibold" href={``}>채팅하기</Link>
