@@ -33,6 +33,8 @@ export const metadata = {
     title: "Home"
 }
 
+export const revalidate = 5
+
 export default async function Products() {
     const initialProducts = await getCachedProducts()
     const revalidate = async () => {

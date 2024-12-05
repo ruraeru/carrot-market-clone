@@ -5,18 +5,18 @@ import { UserIcon } from "@heroicons/react/24/solid";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { unstable_cache as nextCache, revalidateTag } from "next/cache";
+import { unstable_cache as nextCache } from "next/cache";
 
 async function getIsOwner(userId: number) {
-    const session = await getSession();
-    if (session.id) {
-        return session.id === userId;
-    }
+    // const session = await getSession();
+    // if (session.id) {
+    //     return session.id === userId;
+    // }
+
     return false;
 }
 
 async function getProduct(id: number) {
-    console.log("product!!!!!!")
     const product = await db.product.findUnique({
         where: {
             id
@@ -38,7 +38,6 @@ const getCachedProduct = nextCache(getProduct, ["product-detail"], {
 });
 
 async function getProductTitle(id: number) {
-    console.log("title!!!!!!")
     const product = await db.product.findUnique({
         where: {
             id
@@ -60,11 +59,6 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     return {
         title: product?.title
     }
-}
-
-const validateCache = async () => {
-    "use server"
-    revalidateTag("product-title")
 }
 
 export default async function ProductDetail({ params }: { params: Promise<{ id: string }> }) {
@@ -110,12 +104,19 @@ export default async function ProductDetail({ params }: { params: Promise<{ id: 
             <div className="fixed w-full bottom-0 left-0 p-5 pb-10 bg-neutral-800 flex justify-between items-center">
                 <span className="font-semibold text-xl">{formatToWon(product.price)}원</span>
                 {isOwner ? (
-                    <form action={validateCache}>
-                        <button className="bg-red-500 px-5 py-2.5 rounded-md text-white font-semibold">validateCache</button>
+                    <form action={deleteProduct}>
+                        <button className="bg-red-500 px-5 py-2.5 rounded-md text-white font-semibold">Delete product</button>
                     </form>
                 ) : null}
                 <Link className="bg-orange-500 px-5 py-2.5 rounded-md text-white font-semibold" href={``}>채팅하기</Link>
             </div>
         </div>
     )
+}
+
+export async function generateStaticParams() {
+    const products = await db.product.findMany({
+        select: { id: true }
+    });
+    return products.map((product) => ({ id: product.id + "" }))
 }
