@@ -20,10 +20,23 @@ async function getProduct(id: number) {
             id
         },
         include: {
-            user: true
+            user: {
+                select: {
+                    username: true,
+                    avatar: true
+                }
+            },
         }
     });
     return product;
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params;
+    const product = await getProduct(Number(id));
+    return {
+        title: product?.title
+    }
 }
 
 export default async function ProductDetail({ params }: { params: Promise<{ id: string }> }) {
@@ -42,9 +55,11 @@ export default async function ProductDetail({ params }: { params: Promise<{ id: 
         const delete_product = await db.product.delete({
             where: {
                 id: productId
+            },
+            select: {
+                id: true
             }
         })
-        console.log(delete_product)
         return redirect("/products")
     }
     return (
