@@ -5,13 +5,13 @@ import { UserIcon } from "@heroicons/react/24/solid";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { unstable_cache as nextCache } from "next/cache";
+import { unstable_cache as nextCache, revalidatePath } from "next/cache";
 
 async function getIsOwner(userId: number) {
-    // const session = await getSession();
-    // if (session.id) {
-    //     return session.id === userId;
-    // }
+    const session = await getSession();
+    if (session.id) {
+        return session.id === userId;
+    }
 
     return false;
 }
@@ -82,6 +82,7 @@ export default async function ProductDetail({ params }: { params: Promise<{ id: 
                 id: true
             }
         })
+        revalidatePath("/products")
         return redirect("/products")
     }
     return (
