@@ -42,7 +42,7 @@ export async function uploadProduct(_: any, formData: FormData) {
           id: true,
         },
       });
-      revalidatePath("/products");
+      revalidatePath("/home");
       redirect(`/products/${product.id}`);
     }
   }

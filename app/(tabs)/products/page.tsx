@@ -39,7 +39,7 @@ export default async function Products() {
     const initialProducts = await getCachedProducts()
     const revalidate = async () => {
         "use server"
-        revalidatePath("/products")
+        revalidatePath("/home")
     }
     return (
         <div>
